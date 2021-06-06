@@ -1,0 +1,412 @@
+UI Page
+
+HTML:
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+	
+	<g2:evaluate>
+	  var start_date = new GlideDateTime();
+	  var final_start_date = start_date.getYear()+"-"+start_date.getMonth()+"-"+"01"+" "+"00:00:00"; 
+      var gdt_start = new GlideDateTime(final_start_date);
+		
+      var end_date = new GlideDateTime();
+	  var final_end_date = end_date.getYear()+"-"+end_date.getMonth()+"-"+end_date.getDaysInMonth()+" "+"23:59:59"; 
+      var gdt_end = new GlideDateTime(final_end_date);
+   </g2:evaluate>
+	
+	<form class="form-inline">
+  <div class="form-group">
+    <label for="startdate">Start Date:</label>
+	  &#160;&#160;
+    <g:ui_date_time name="start_date" id="start_date" value=''/>
+	  &#160;&#160;
+  </div>
+  <div class="form-group">
+   <label for="enddate">End Date:</label>
+	  &#160;&#160;
+    <g:ui_date_time name="end_date" id="end_date" value=''/>
+  </div>
+		<div class="form-group">
+			&#160;&#160;
+   <input type="button" class="btn btn-primary" value="Apply" onclick="alertDateTime()" />
+			 </div>
+</form>
+		
+<script>
+		
+
+</script>
+
+</j:jelly>
+
+
+Client Script:
+
+var filter_id = "${RP.getWindowProperties().get('sys_id')}";
+var interactiveFilterPersistedValues = new InteractiveFilterPersistedValues();
+var my_dashboardMessageHandler = new DashboardMessageHandler(filter_id);
+var searchBoxElementDate = document.getElementById('start_date');
+var searchBoxElementDate2 = document.getElementById('end_date');
+var default_filter = interactiveFilterPersistedValues.getDefaultValueByKey(filter_id);
+var default_value = '';
+var start_of_encoded_query = 'projtask_due_date';
+var posiIsLessThan = JSON.stringify(default_filter).indexOf("<=");
+var posIsGreatThan = JSON.stringify(default_filter).indexOf(">=");
+var posBETWEEN = JSON.stringify(default_filter).indexOf("BETWEEN");
+
+if (posiIsLessThan > -1) {
+    var datePart1 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[1];
+    var timePart1 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[3];
+    searchBoxElementDate2.value = datePart1 + " " + timePart1;
+}
+
+if (posIsGreatThan > -1) {
+    var datePart2 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[1];
+    var timePart2 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[3];
+    searchBoxElementDate.value = datePart2 + " " + timePart2;
+}
+
+if (posBETWEEN > -1) {
+    var datePart3 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[1];
+    var timePart3 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[0].split("'")[3];
+    searchBoxElementDate.value = datePart3 + " " + timePart3;
+    var datePart4 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[1].split("'")[1];
+    var timePart4 = JSON.stringify(default_filter).split('projtask_due_date')[1].split("@")[1].split("'")[3];
+    searchBoxElementDate2.value = datePart4 + " " + timePart4;
+}
+
+function alertDateTime() {
+
+    var start = document.getElementById("start_date").value.toString(),
+        end = document.getElementById("end_date").value.toString(),
+        startDate = document.getElementById("start_date").value.toString().split(' ')[0],
+        startTime = document.getElementById("start_date").value.toString().split(' ')[1],
+        endDate = document.getElementById("end_date").value.toString().split(' ')[0],
+        endTime = document.getElementById("end_date").value.toString().split(' ')[1],
+        filterValRAGCost, filterValRAGQty, filterValRAGQtyNew;
+
+    if (start == '' && end != '') {
+        //filterValRAGCost = "projtask_due_date" + '<=' + "javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+        filterValRAGQty = "projtask_due_date" + '<=' + "javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+		filterValRAGQtyNew = "projtask_due_date" + '<=' + "javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+    } else if (start != '' && end == '') {
+        //filterValRAGCost = "projtask_due_date" + '>=' + "javascript:gs.dateGenerate('" + startDate + "','" + startTime + "')";
+        filterValRAGQty = "projtask_due_date" + '>=' + "javascript:gs.dateGenerate('" + startDate + "','" + startTime + "')";
+		filterValRAGQtyNew = "projtask_due_date" + '>=' + "javascript:gs.dateGenerate('" + startDate + "','" + startTime + "')";
+    } else if (start != '' && end != '') {
+        //filterValRAGCost = "projtask_due_dateBETWEENjavascript:gs.dateGenerate('" + startDate + "','" + startTime + "')@javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+        filterValRAGQty = "projtask_due_dateBETWEENjavascript:gs.dateGenerate('" + startDate + "','" + startTime + "')@javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+		filterValRAGQtyNew = "projtask_due_dateBETWEENjavascript:gs.dateGenerate('" + startDate + "','" + startTime + "')@javascript:gs.dateGenerate('" + endDate + "','" + endTime + "')";
+    } else {
+        //filterValRAGCost = "projtask_due_dateANYTHING";
+        filterValRAGQty = "projtask_due_dateANYTHING";
+		filterValRAGQtyNew = "projtask_due_dateANYTHING";
+    }
+
+    var finalFilter = [{
+            "table": "u_delivery_milestone_project_task",
+            "filter": filterValRAGQty
+        },
+        {
+            "table": "u_project_task_po",
+            "filter": filterValRAGQtyNew
+        }
+    ];
+
+    SNC.canvas.interactiveFilters.setDefaultValue({
+        id: my_dashboardMessageHandler._RAG_Due_Date,
+        filters: finalFilter,
+    }, false);
+	interactiveFilterPersistedValues.removeDefaultValue(filter_id, true);
+    my_dashboardMessageHandler.publishMessage(finalFilter);
+    interactiveFilterPersistedValues.setDefaultValue(finalFilter, filter_id, true);
+}
+
+
+
+Business Driver:
+ 
+ HTML:
+ 
+ <?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+	<form class="form-inline">
+	 <div class="form-group">
+   <TABLE>
+	   <TR>
+		  <TD>
+	<g2:ui_reference name="booking_req_id" id="booking_req_id" table="cmdb_ci_business_capability"  query="active=true" onchange= "Hello(this.value)"/>
+			  <p></p>
+    <input type="button" class="btn btn-primary" value="Apply" onclick="continueOK()" />
+		 </TD>
+		   <TD>
+            <g:ui_slushbucket id="slushnew"/>
+         </TD>
+      </TR>
+      <TR>
+      </TR>
+   </TABLE>
+	</div>
+	</form>
+</j:jelly>
+
+Client Scrtipt
+
+addLoadEvent(loadMe);
+var filter_id = "${RP.getWindowProperties().get('sys_id')}";
+var interactiveFilterPersistedValues = new InteractiveFilterPersistedValues();
+var my_dashboardMessageHandler = new DashboardMessageHandler(filter_id);
+var refBusinessCap = document.getElementById('booking_req_id');
+var slushBucketNew = document.getElementById('slushnew');
+var default_filter = interactiveFilterPersistedValues.getDefaultValueByKey(filter_id);
+var default_value = '';
+//alert(default_filter[0]["filter"].split("^")[1].split("=")[1]);
+var bDriver, BDriverVal, tempStore;
+
+bDriver = default_filter[0]["filter"].split("^")[1].split("=")[1];
+bDriverVal = default_filter[0]["filter"].split("^")[0].split("IN")[1];
+
+if (bDriver) {
+    var ajax1 = new GlideAjax('GroupSelectAjax');
+    ajax1.addParam('sysparm_name', 'getNames');
+    ajax1.addParam('sysparm_business', bDriver);
+    ajax1.getXML(function(response) {
+        loadResponsebusiness(response, bDriver, bDriverVal);
+    });
+
+}
+
+function loadResponsebusiness(response, bDriver, bDriverVal) {
+    var answer = response.responseXML.documentElement.getAttribute("answer");
+    document.getElementById('booking_req_id').value = bDriver;
+    document.getElementById('sys_display.booking_req_id').value = answer;
+    gel('booking_req_idLINKreplace').style.display = "";
+    HelloSavedVal(bDriver, bDriverVal);
+}
+
+function Hello(selectedDriver) {
+    slush.clear();
+    var ajax = new GlideAjax('GroupSelectAjax');
+    ajax.addParam('sysparm_name', 'getGroups');
+    ajax.addParam('sysparm_driver', selectedDriver);
+    ajax.getXML(loadResponse);
+    return false;
+}
+
+function HelloSavedVal(selectedDriver, bDriverVal) {
+    slush.clear();
+    var ajax = new GlideAjax('GroupSelectAjax');
+    ajax.addParam('sysparm_name', 'getGroups');
+    ajax.addParam('sysparm_driver', selectedDriver);
+    ajax.getXML(function(response) {
+        loadResponseSaved(response, bDriverVal);
+    });
+    return false;
+}
+
+function continueOK() {
+
+    var bDriver = document.getElementById("booking_req_id").value,
+        values = slush.getValues(slush.getRightSelect()).toString(),
+        my_dashboardMessageHandler = new DashboardMessageHandler("my_unique_id"),
+        sampleFilter, strNew = '',
+        businessDriverTaskFilter = '';
+    if (bDriver == '') {
+        strNew = "u_business_driver.sys_idANYTHING";
+        businessDriverTaskFilter = "bd_u_business_driver.sys_idANYTHING";
+    } else {
+        if (values == '') {
+            alert("At least one driver value must be selected");
+            return;
+        } else {
+            strNew = "u_business_driver_valueIN" + values.toString() + '^u_business_driver.sys_id=' + bDriver;
+            businessDriverTaskFilter = "bd_u_business_driver_valueIN" + values.toString() + '^bd_u_business_driver.sys_id=' + bDriver;
+        }
+    }
+    var finalFilter = [{
+        "table": "u_project_business_driver",
+        "filter": strNew
+    }, {
+        "table": "u_project_business_driver_task",
+        "filter": businessDriverTaskFilter
+    }];
+
+    SNC.canvas.interactiveFilters.setDefaultValue({
+        id: my_dashboardMessageHandler._business_driver_ndis,
+        filters: finalFilter,
+    }, false);
+    interactiveFilterPersistedValues.removeDefaultValue(filter_id, true);
+    my_dashboardMessageHandler.publishMessage(finalFilter);
+    interactiveFilterPersistedValues.setDefaultValue(finalFilter, filter_id, true);
+
+    return;
+}
+
+function loadResponse(response) {
+    var xml = response.responseXML;
+    var e = xml.documentElement;
+    var container = [];
+    var items = xml.getElementsByTagName("item");
+    if (items.length == 0)
+        return;
+
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        slush.addLeftChoice(item.getAttribute('text'), item.getAttribute('text'));
+        container.push(item.getAttribute('text'));
+    }
+}
+
+function loadResponseSaved(response, bDriverVal) {
+    var xml = response.responseXML;
+    var e = xml.documentElement;
+    var container = [];
+    var selectedIDs = new Array();
+    var index = 0;
+    for (var i1 = 0; i1 < bDriverVal.split(',').length; i1++) {
+        selectedIDs[index] = bDriverVal.split(',')[i1];
+        index++;
+    }
+    var items = xml.getElementsByTagName("item");
+    if (items.length == 0)
+        return;
+
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        container.push(item.getAttribute('text'));
+    }
+	var leftBucket = container;
+	var rightBucket = bDriverVal;
+    var arr1 = [],
+        arr2 = [];
+    arr2 = leftBucket.toString().split(',');
+    arr1 = rightBucket.toString().split(',');
+
+    var arr3 = [];
+    for (var j = 0; j < arr2.length; j++) {
+        if (arr1.indexOf(arr2[j]) == -1) {
+            arr3.push(arr2[j]);
+        }
+    }
+	for (var k = 0; k < arr3.length; k++) {
+		slush.addLeftChoice(arr3[k],arr3[k]);
+	}
+	
+	for (var m = 0; m < bDriverVal.split(',').length; m++) {
+		slush.addRightChoice(bDriverVal.split(',')[m],bDriverVal.split(',')[m]);
+	}
+}
+
+function loadResponseSeparaeted(response) {
+    var answer = response.responseXML.documentElement.getAttribute("answer");
+}
+
+addLoadEvent(loadMe);
+
+function loadMe() {
+    document.getElementById("slush_left").style.height = "100px";
+    document.getElementById("slush_right").style.height = "100px";
+    document.getElementById("slush_left").style.width = "170px";
+    document.getElementById("slush_right").style.width = "170px";
+}
+
+
+Business Rule:
+
+<access>package_private</access>
+
+<action_delete>true</action_delete>
+
+<action_insert>true</action_insert>
+
+<action_query>false</action_query>
+
+<action_update>true</action_update>
+
+<active>true</active>
+
+<add_message>false</add_message>
+
+<advanced>true</advanced>
+
+<change_fields>false</change_fields>
+
+<client_callable>false</client_callable>
+
+<collection>sys_canvas_preferences</collection>
+
+<condition/>
+
+<description/>
+
+<execute_function>false</execute_function>
+
+<filter_condition table="sys_canvas_preferences"/>
+
+<is_rest>false</is_rest>
+
+<message/>
+
+<name>Persist Filter Across Dashboard</name>
+
+<order>100</order>
+
+<priority>100</priority>
+
+<rest_method display_value=""/>
+
+<rest_method_text/>
+
+<rest_service display_value=""/>
+
+<rest_service_text/>
+
+<rest_variables/>
+
+<role_conditions/>
+
+
+-<script>
+
+-<![CDATA[(function executeRule(current, previous /*null when async*/) {
+	//sys_grid_canvas page
+	var sys_grid_canvas = current.getValue('canvas_page');
+
+	//find the dashboard
+	var dashboardTabs = new GlideRecord('pa_m2m_dashboard_tabs');
+	dashboardTabs.get('tab.canvas_page.sys_id', sys_grid_canvas);
+	var dashboard = dashboardTabs.getValue('dashboard');
+	
+	//find all pages of the dashboard
+	dashboardTabs = new GlideRecord('pa_m2m_dashboard_tabs');
+	dashboardTabs.addQuery('dashboard', dashboard);
+	dashboardTabs.query();
+	
+	var canvas_pages = [];
+
+	while (dashboardTabs.next()) {
+		var canvas_page = dashboardTabs.tab.getRefRecord().getValue('canvas_page');
+		canvas_pages.push(canvas_page);
+	}
+
+	if (canvas_pages.length < 1)
+		return;
+
+	//find any existing canvas persistence records for these pages and current widget
+	var canvasPreferences = new GlideRecord('sys_canvas_preferences');
+	canvasPreferences.addQuery('user', current.getValue('user'));
+
+	var canvasPageQuery = canvasPreferences.addQuery('canvas_page', canvas_pages[0]);
+	for (var i=1; i<canvas_pages.length; i++) {
+		canvasPageQuery.addOrCondition('canvas_page', canvas_pages[i]);
+	}
+	
+	canvasPreferences.addQuery('widget_id', current.getValue('widget_id'));
+	
+	if(current.operation() == 'update') {
+		canvasPreferences.setValue('value', current.getValue('value'));
+		canvasPreferences.setWorkflow(false);
+		canvasPreferences.updateMultiple();
+	}
+
+})(current, previous);]]>
+</script>
